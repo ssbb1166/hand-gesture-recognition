@@ -6,7 +6,7 @@
 using namespace std;
 using namespace cv;
 
-POINT* curr = new POINT;
+POINT ptMouse;
 Mat frame;
 
 void drawRect(Mat& frame, Point center, int fingerCount) {
@@ -18,11 +18,11 @@ void drawRect(Mat& frame, Point center, int fingerCount) {
 	Size textSize = getTextSize(count, fontFace, fontScale, thickness, &baseline);
 
 	//center the text
-	Point textOrg1((center.x - textSize.width/2.0), (center.y-textSize.height*2.0));
-	Point textOrg2((center.x - textSize.width/2.0), (center.y-textSize.height*4.0));
+	Point textOrg1((center.x - textSize.width / 2.0), (center.y - textSize.height * 2.0));
+	Point textOrg2((center.x - textSize.width / 2.0), (center.y - textSize.height * 4.0));
 
 	putText(frame, "(" + to_string(center.x) + "," + to_string(center.y) + ")", textOrg1, fontFace, fontScale, Scalar(0, 255, 0), thickness, 8);
-	putText(frame, count + to_string(fingerCount-1), textOrg2, fontFace, fontScale, Scalar(0, 0, 255), thickness, 8);
+	putText(frame, count + to_string(fingerCount - 1), textOrg2, fontFace, fontScale, Scalar(0, 0, 255), thickness, 8);
 
 }
 
@@ -127,8 +127,12 @@ int main(int argc, char** argv)
 
 		getFingerCount(skin_area, center, radius, 2.0);
 
-		GetCursorPos(curr);
-		SetCursorPos(center.x, center.y);
+		namedWindow("Live");
+		HWND hWnd = FindWindow(NULL, L"Live");
+		ptMouse.x = center.x;
+		ptMouse.y = center.y;
+		ClientToScreen(hWnd, &ptMouse);
+		SetCursorPos(ptMouse.x, ptMouse.y);
 
 		// 영상을 실시간으로 출력한다.
 		imshow("Live", frame);
