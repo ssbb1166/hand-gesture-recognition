@@ -149,21 +149,18 @@ int main(int argc, char** argv)
 		// ROI 영역을 YCrCb 영상으로 변환한다.
 		cvtColor(ROI, ycrcb, COLOR_BGR2YCrCb);
 		split(ycrcb, channels);
-		//imshow("ycrcb", ycrcb);
 
 		// 피부 영역을 검출한다. (133 <= Cr <= 173, 77 <= Cb <= 127)
 		inRange(ycrcb, Scalar(0, 133, 77), Scalar(255, 173, 127), skin_area);
-		//imshow("skin_area", skin_area);
+
+		// 열림 연산을 적용한다.
+		Mat element9(9, 9, CV_8U, Scalar(1));
+		morphologyEx(skin_area, skin_area, MORPH_OPEN, element9);
 
 		// 손의 중심을 찾는다.
 		center = getHandCenter(skin_area);
 		circle(ROI, center, 2, Scalar(0, 255, 0), -1);
 		circle(ROI, center, (int)(radius * 2.0), Scalar(255, 0, 0), 2);
-
-		// 열림 연산을 적용한다.
-		Mat element9(9, 9, CV_8U, Scalar(1));
-		morphologyEx(skin_area, skin_area, MORPH_OPEN, element9);
-		//imshow("opening", skin_area);
 
 		// 손가락 개수를 구한다.
 		getFingerCount(skin_area, center, radius, 2.0);
@@ -180,7 +177,6 @@ int main(int argc, char** argv)
 		drawPoint();
 
 		// 영상을 실시간으로 출력한다.
-		//imshow("ROI", ROI);
 		imshow("Live", frame);
 
 		if (waitKey(50) >= 0)
